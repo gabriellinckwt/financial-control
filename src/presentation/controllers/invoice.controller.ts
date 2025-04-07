@@ -29,28 +29,63 @@ export class InvoiceController {
 
   @Post()
   async create(@Body() createInvoiceDto: CreateInvoiceDto) {
-    return this.createInvoiceUseCase.execute(createInvoiceDto);
+    try {
+      return await this.createInvoiceUseCase.execute(createInvoiceDto);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to create invoice: ${error.message}`);
+      }
+      throw new Error('Failed to create invoice: Unknown error');
+    }
   }
 
   @Get()
   async getAll() {
-    return this.getInvoicesUseCase.execute();
+    try {
+      return await this.getInvoicesUseCase.execute();
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to get invoices: ${error.message}`);
+      }
+      throw new Error('Failed to get invoices: Unknown error');
+    }
   }
 
   @Get(':id')
   @UseGuards(ParseIdGuard)
   async getById(@Param('id') id: number) {
-    return this.getInvoiceByIdUseCase.execute(id);
+    try {
+      return await this.getInvoiceByIdUseCase.execute(id);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to get invoice by ID: ${error.message}`);
+      }
+      throw new Error('Failed to get invoice by ID: Unknown error');
+    }
   }
 
   @Put()
   async update(@Body() updateInvoiceDto: UpdateInvoiceDto) {
-    return this.updateInvoiceUseCase.execute(updateInvoiceDto);
+    try {
+      return await this.updateInvoiceUseCase.execute(updateInvoiceDto);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to update invoice: ${error.message}`);
+      }
+      throw new Error('Failed to update invoice: Unknown error');
+    }
   }
 
   @Delete(':id')
   @UseGuards(ParseIdGuard)
   async delete(@Param('id') id: number) {
-    return this.deleteInvoiceUseCase.execute(id);
+    try {
+      return await this.deleteInvoiceUseCase.execute(id);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to delete invoice: ${error.message}`);
+      }
+      throw new Error('Failed to delete invoice: Unknown error');
+    }
   }
 }

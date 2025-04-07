@@ -4,9 +4,9 @@ import { CreateInvoiceUseCase } from '../../application/use-cases/create-invoice
 import { GetInvoicesUseCase } from '../../application/use-cases/get-invoices.use-case';
 import { GetInvoiceByIdUseCase } from '../../application/use-cases/get-invoice-by-id.use-case';
 import { UpdateInvoiceUseCase } from '../../application/use-cases/update-invoice.use-case';
+import { DeleteInvoiceUseCase } from '../../application/use-cases/delete-invoice.use-case';
 import { CreateInvoiceDto } from '../../application/dtos/create-invoice.dto';
 import { UpdateInvoiceDto } from '../../application/dtos/update-invoice.dto';
-import { DeleteInvoiceUseCase } from '../../application/use-cases/delete-invoice.use-case';
 
 describe('InvoiceController', () => {
   let controller: InvoiceController;
@@ -17,28 +17,36 @@ describe('InvoiceController', () => {
   let deleteInvoiceUseCase: jest.Mocked<DeleteInvoiceUseCase>;
 
   beforeEach(async () => {
+    const mockUseCases = {
+      createInvoiceUseCase: { execute: jest.fn() },
+      getInvoicesUseCase: { execute: jest.fn() },
+      getInvoiceByIdUseCase: { execute: jest.fn() },
+      updateInvoiceUseCase: { execute: jest.fn() },
+      deleteInvoiceUseCase: { execute: jest.fn() },
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [InvoiceController],
       providers: [
         {
           provide: CreateInvoiceUseCase,
-          useValue: { execute: jest.fn() },
+          useValue: mockUseCases.createInvoiceUseCase,
         },
         {
           provide: GetInvoicesUseCase,
-          useValue: { execute: jest.fn() },
+          useValue: mockUseCases.getInvoicesUseCase,
         },
         {
           provide: GetInvoiceByIdUseCase,
-          useValue: { execute: jest.fn() },
+          useValue: mockUseCases.getInvoiceByIdUseCase,
         },
         {
           provide: UpdateInvoiceUseCase,
-          useValue: { execute: jest.fn() },
+          useValue: mockUseCases.updateInvoiceUseCase,
         },
         {
           provide: DeleteInvoiceUseCase,
-          useValue: { execute: jest.fn() },
+          useValue: mockUseCases.deleteInvoiceUseCase,
         },
       ],
     }).compile();
@@ -51,78 +59,178 @@ describe('InvoiceController', () => {
     deleteInvoiceUseCase = module.get(DeleteInvoiceUseCase);
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  describe('create', () => {
+    it('should create an invoice successfully', async () => {
+      const createDto: CreateInvoiceDto = {
+        category: 'New Category',
+        portions: 2,
+        price: 200,
+        title: 'New Title',
+      };
+      const expectedResult = { id: 1, ...createDto };
+
+      createInvoiceUseCase.execute.mockResolvedValue(expectedResult);
+
+      const result = await controller.create(createDto);
+
+      expect(createInvoiceUseCase.execute).toHaveBeenCalledWith(createDto);
+      expect(result).toEqual(expectedResult);
+    });
+
+    it('should handle known errors', async () => {
+      const createDto: CreateInvoiceDto = {
+        category: 'New Category',
+        portions: 2,
+        price: 200,
+        title: 'New Title',
+      };
+      const error = new Error('Known error');
+
+      createInvoiceUseCase.execute.mockRejectedValue(error);
+
+      await expect(controller.create(createDto)).rejects.toThrow(
+        'Failed to create invoice: Known error',
+      );
+    });
+
+    it('should handle unknown errors', async () => {
+      const createDto: CreateInvoiceDto = {
+        category: 'New Category',
+        portions: 2,
+        price: 200,
+        title: 'New Title',
+      };
+
+      createInvoiceUseCase.execute.mockRejectedValue('Unknown error');
+
+      await expect(controller.create(createDto)).rejects.toThrow(
+        'Failed to create invoice: Unknown error',
+      );
+    });
   });
 
-  it('should create a new invoice', async () => {
-    const createInvoiceDto: CreateInvoiceDto = {
-      title: '',
-      category: '',
-      portions: 0,
-      price: 0,
-    };
-    const expectedResult = { id: 1, ...createInvoiceDto };
-    createInvoiceUseCase.execute.mockResolvedValue(expectedResult);
+  describe('getAll', () => {
+    it('should get all invoices successfully', async () => {
+      const expectedResult = [
+        {
+          id: 1,
+          category: 'Category',
+          portions: 2,
+          price: 200,
+          title: 'Title',
+        },
+        {
+          id: 2,
+          category: 'Category',
+          portions: 2,
+          price: 200,
+          title: 'Title',
+        },
+      ];
 
-    const result = await controller.create(createInvoiceDto);
+      getInvoicesUseCase.execute.mockResolvedValue(expectedResult);
 
-    expect(createInvoiceUseCase.execute).toHaveBeenCalledWith(createInvoiceDto);
-    expect(result).toEqual(expectedResult);
+      const result = await controller.getAll();
+
+      expect(getInvoicesUseCase.execute).toHaveBeenCalled();
+      expect(result).toEqual(expectedResult);
+    });
+
+    it('should handle errors', async () => {
+      getInvoicesUseCase.execute.mockRejectedValue(new Error('Database error'));
+
+      await expect(controller.getAll()).rejects.toThrow(
+        'Failed to get invoices: Database error',
+      );
+    });
   });
 
-  it('should return all invoices', async () => {
-    const expectedResult = [
-      { id: 1, title: '', category: '', portions: 0, price: 0 },
-      { id: 2, title: '', category: '', portions: 0, price: 0 },
-    ];
-    getInvoicesUseCase.execute.mockResolvedValue(expectedResult);
+  describe('getById', () => {
+    it('should get invoice by id successfully', async () => {
+      const id = 1;
+      const expectedResult = {
+        id,
+        category: 'Updated Category',
+        portions: 2,
+        price: 200,
+        title: 'Updated Title',
+      };
 
-    const result = await controller.getAll();
+      getInvoiceByIdUseCase.execute.mockResolvedValue(expectedResult);
 
-    expect(getInvoicesUseCase.execute).toHaveBeenCalled();
-    expect(result).toEqual(expectedResult);
+      const result = await controller.getById(id);
+
+      expect(getInvoiceByIdUseCase.execute).toHaveBeenCalledWith(id);
+      expect(result).toEqual(expectedResult);
+    });
+
+    it('should handle errors', async () => {
+      getInvoiceByIdUseCase.execute.mockRejectedValue(new Error('Not found'));
+
+      await expect(controller.getById(1)).rejects.toThrow(
+        'Failed to get invoice by ID: Not found',
+      );
+    });
   });
 
-  it('should return a invoice by id', async () => {
-    const expectedResult = {
-      id: 1,
-      title: '',
-      category: '',
-      portions: 0,
-      price: 0,
-    };
-    getInvoiceByIdUseCase.execute.mockResolvedValue(expectedResult);
+  describe('update', () => {
+    it('should update invoice successfully', async () => {
+      const updateDto: UpdateInvoiceDto = {
+        id: 1,
+        category: 'Updated Category',
+        portions: 2,
+        price: 200,
+        title: 'Updated Title',
+      };
+      const expectedResult = { ...updateDto };
 
-    const result = await controller.getById(1);
+      updateInvoiceUseCase.execute.mockResolvedValue(expectedResult);
 
-    expect(getInvoiceByIdUseCase.execute).toHaveBeenCalledWith(1);
-    expect(result).toEqual(expectedResult);
+      const result = await controller.update(updateDto);
+
+      expect(updateInvoiceUseCase.execute).toHaveBeenCalledWith(updateDto);
+      expect(result).toEqual(expectedResult);
+    });
+
+    it('should handle errors', async () => {
+      const updateDto: UpdateInvoiceDto = {
+        id: 1,
+        category: 'Updated Category',
+        portions: 2,
+        price: 200,
+        title: 'Updated Title',
+      };
+
+      updateInvoiceUseCase.execute.mockRejectedValue(
+        new Error('Update failed'),
+      );
+
+      await expect(controller.update(updateDto)).rejects.toThrow(
+        'Failed to update invoice: Update failed',
+      );
+    });
   });
 
-  it('should update a invoice', async () => {
-    const updateInvoiceDto: UpdateInvoiceDto = {
-      id: 1,
-      title: '',
-      category: '',
-      portions: 0,
-      price: 0,
-    };
-    const expectedResult = { ...updateInvoiceDto, updatedAt: new Date() };
-    updateInvoiceUseCase.execute.mockResolvedValue(expectedResult);
+  describe('delete', () => {
+    it('should delete invoice successfully', async () => {
+      const id = 1;
 
-    const result = await controller.update(updateInvoiceDto);
+      deleteInvoiceUseCase.execute.mockResolvedValue(null);
 
-    expect(updateInvoiceUseCase.execute).toHaveBeenCalledWith(updateInvoiceDto);
-    expect(result).toEqual(expectedResult);
-  });
+      const result = await controller.delete(id);
 
-  it('should delete a invoice', async () => {
-    deleteInvoiceUseCase.execute.mockResolvedValue(null);
+      expect(deleteInvoiceUseCase.execute).toHaveBeenCalledWith(id);
+      expect(result).toBeNull();
+    });
 
-    const result = await controller.delete(1);
+    it('should handle errors', async () => {
+      deleteInvoiceUseCase.execute.mockRejectedValue(
+        new Error('Delete failed'),
+      );
 
-    expect(deleteInvoiceUseCase.execute).toHaveBeenCalledWith(1);
-    expect(result).toEqual(null);
+      await expect(controller.delete(1)).rejects.toThrow(
+        'Failed to delete invoice: Delete failed',
+      );
+    });
   });
 });
