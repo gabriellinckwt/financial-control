@@ -1,6 +1,5 @@
-export class UpdateBillDto {
+export class CreateInvoiceDto {
   constructor(
-    public id: number,
     public title: string,
     public category: string,
     public price: number,

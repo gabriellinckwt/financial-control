@@ -1,3 +1,3 @@
-import { Bill as PrismaBill } from '@prisma/client';
+import { Invoice as PrismaInvoice } from '@prisma/client';
 
-export type { PrismaBill };
+export type { PrismaInvoice };

@@ -1,4 +1,4 @@
-export class Bill {
+export class Invoice {
   constructor(
     public readonly id: number,
     public readonly title: string,
