@@ -9,7 +9,7 @@ export class GetBillByIdUseCase {
     private billRepository: PrismaBillRepository,
   ) {}
 
-  async execute(id: string): Promise<Bill | null> {
+  async execute(id: number): Promise<Bill | null> {
     return this.billRepository.getById(id);
   }
 }

@@ -28,10 +28,10 @@ export class PrismaBillRepository implements BillRepository {
     return bills;
   }
 
-  async getById(id: string): Promise<Bill | null> {
+  async getById(id: number): Promise<Bill | null> {
     const bill = await this.prisma.bill.findFirst({
       where: {
-        id: parseInt(id),
+        id,
       },
     });
 
@@ -51,10 +51,10 @@ export class PrismaBillRepository implements BillRepository {
     return bill;
   }
 
-  async delete(id: string): Promise<null> {
+  async delete(id: number): Promise<null> {
     await this.prisma.bill.delete({
       where: {
-        id: parseInt(id),
+        id,
       },
     });
 

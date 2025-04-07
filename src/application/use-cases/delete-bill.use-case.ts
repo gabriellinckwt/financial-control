@@ -8,7 +8,7 @@ export class DeleteBillUseCase {
     private billRepository: PrismaBillRepository,
   ) {}
 
-  async execute(id: string): Promise<null> {
+  async execute(id: number): Promise<null> {
     return this.billRepository.delete(id);
   }
 }

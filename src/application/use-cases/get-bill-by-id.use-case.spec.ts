@@ -41,14 +41,14 @@ describe('GetBillByIdUseCase', () => {
 
     mockBillRepository.getById.mockResolvedValue(expectedBill);
 
-    const result = await useCase.execute('1');
+    const result = await useCase.execute(1);
 
-    expect(mockBillRepository.getById).toHaveBeenCalledWith('1');
+    expect(mockBillRepository.getById).toHaveBeenCalledWith(1);
     expect(result).toEqual(expectedBill);
   });
 
   it('should return null if bill is not found', async () => {
-    const id = 'non-existent-id';
+    const id = 2;
 
     mockBillRepository.getById.mockResolvedValue(null);
 

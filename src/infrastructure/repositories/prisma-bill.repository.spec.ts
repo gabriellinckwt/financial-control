@@ -102,7 +102,7 @@ describe('PrismaBillRepository', () => {
 
     prismaService.bill.findFirst.mockResolvedValue(expectedBill);
 
-    const result = await repository.getById('1');
+    const result = await repository.getById(1);
 
     expect(prismaService.bill.findFirst).toHaveBeenCalledWith({
       where: { id: 1 },
@@ -113,7 +113,7 @@ describe('PrismaBillRepository', () => {
   it('should return null when bill is not found', async () => {
     prismaService.bill.findFirst.mockResolvedValue(null);
 
-    const result = await repository.getById('999');
+    const result = await repository.getById(999);
 
     expect(prismaService.bill.findFirst).toHaveBeenCalledWith({
       where: { id: 999 },
@@ -124,10 +124,10 @@ describe('PrismaBillRepository', () => {
   it('should handle invalid id format', async () => {
     prismaService.bill.findFirst.mockResolvedValue(null);
 
-    const result = await repository.getById('invalid');
+    const result = await repository.getById(0);
 
     expect(prismaService.bill.findFirst).toHaveBeenCalledWith({
-      where: { id: NaN },
+      where: { id: 0 },
     });
     expect(result).toBeNull();
   });
@@ -136,7 +136,7 @@ describe('PrismaBillRepository', () => {
     const error = new Error('Database query failed');
     prismaService.bill.findFirst.mockRejectedValue(error);
 
-    await expect(repository.getById('1')).rejects.toThrow(error);
+    await expect(repository.getById(1)).rejects.toThrow(error);
   });
 
   it('should update a bill', async () => {

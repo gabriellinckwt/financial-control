@@ -5,7 +5,7 @@ import { UpdateBillDto } from 'src/application/dtos/update-bill.dto';
 export interface BillRepository {
   create(data: CreateBillDto): Promise<Bill>;
   getAll(): Promise<Bill[]>;
-  getById(id: string): Promise<Bill | null>;
+  getById(id: number): Promise<Bill | null>;
   update(data: UpdateBillDto): Promise<Bill>;
-  delete(id: string): Promise<null>;
+  delete(id: number): Promise<null>;
 }

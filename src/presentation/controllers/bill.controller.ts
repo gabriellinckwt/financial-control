@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { CreateBillDto } from '../../application/dtos/create-bill.dto';
 import { UpdateBillDto } from '../../application/dtos/update-bill.dto';
 import { CreateBillUseCase } from '../../application/use-cases/create-bill.use-case';
@@ -6,6 +15,7 @@ import { GetBillByIdUseCase } from '../../application/use-cases/get-bill-by-id.u
 import { GetBillsUseCase } from '../../application/use-cases/get-bills.use-case';
 import { UpdateBillUseCase } from '../../application/use-cases/update-bill.use-case';
 import { DeleteBillUseCase } from '../../application/use-cases/delete-bill.use-case';
+import { ParseIdGuard } from '../../gateways/guards/parse-number.guard';
 
 @Controller('api/v1/bill')
 export class BillController {
@@ -28,7 +38,8 @@ export class BillController {
   }
 
   @Get(':id')
-  async getById(@Param('id') id: string) {
+  @UseGuards(ParseIdGuard)
+  async getById(@Param('id') id: number) {
     return this.getBillByIdUseCase.execute(id);
   }
 
@@ -37,8 +48,9 @@ export class BillController {
     return this.updateBillUseCase.execute(updateBillDto);
   }
 
-  @Put()
-  async delete(@Param('id') id: string) {
+  @Delete(':id')
+  @UseGuards(ParseIdGuard)
+  async delete(@Param('id') id: number) {
     return this.deleteBillUseCase.execute(id);
   }
 }

@@ -94,9 +94,9 @@ describe('BillController', () => {
     };
     getBillByIdUseCase.execute.mockResolvedValue(expectedResult);
 
-    const result = await controller.getById('1');
+    const result = await controller.getById(1);
 
-    expect(getBillByIdUseCase.execute).toHaveBeenCalledWith('1');
+    expect(getBillByIdUseCase.execute).toHaveBeenCalledWith(1);
     expect(result).toEqual(expectedResult);
   });
 
@@ -120,9 +120,9 @@ describe('BillController', () => {
   it('should delete a bill', async () => {
     deleteBillUseCase.execute.mockResolvedValue(null);
 
-    const result = await controller.delete('1');
+    const result = await controller.delete(1);
 
-    expect(deleteBillUseCase.execute).toHaveBeenCalledWith('1');
+    expect(deleteBillUseCase.execute).toHaveBeenCalledWith(1);
     expect(result).toEqual(null);
   });
 });

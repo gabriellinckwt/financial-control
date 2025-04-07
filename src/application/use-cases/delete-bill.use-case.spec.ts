@@ -31,9 +31,9 @@ describe('DeleteBillUseCase', () => {
   it('should delete a bill', async () => {
     mockBillRepository.delete.mockResolvedValue(null);
 
-    const result = await useCase.execute('1');
+    const result = await useCase.execute(1);
 
-    expect(mockBillRepository.delete).toHaveBeenCalledWith('1');
+    expect(mockBillRepository.delete).toHaveBeenCalledWith(1);
     expect(result).toBeNull();
   });
 });
